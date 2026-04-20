@@ -1,0 +1,26 @@
+{
+    "products": [
+        {
+            "name": "Laptop",
+            "price": 50000,
+            "stock": 10,
+            "delivery": "3 days",
+            "specs": "i5, 8GB RAM"
+        },
+        {
+            "name": "Phone",
+            "price": 20000,
+            "stock": 8,
+            "delivery": "2 days",
+            "specs": "6GB RAM"
+        },
+        {
+            "name": "Headphones",
+            "price": 2000,
+            "stock": 13,
+            "delivery": "1 day",
+            "specs": "Wireless"
+        }
+    ],
+    "cart": []
+}
