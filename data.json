@@ -3,14 +3,14 @@
         {
             "name": "Laptop",
             "price": 50000,
-            "stock": 10,
+            "stock": 15,
             "delivery": "3 days",
             "specs": "i5, 8GB RAM"
         },
         {
             "name": "Phone",
             "price": 20000,
-            "stock": 8,
+            "stock": 17,
             "delivery": "2 days",
             "specs": "6GB RAM"
         },

@@ -17,7 +17,7 @@ USAGE:
   The server starts at: http://127.0.0.1:5000
 =============================================================================
 """
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 import json
 import os
 
@@ -102,6 +102,14 @@ def products():
         ]
     """
     return jsonify(load()["products"])
+
+
+# ============================================================
+# ROUTE: GET /
+# ============================================================
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 
 # ============================================================

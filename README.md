@@ -27,6 +27,12 @@ The system allows a user to:
 - Requests (CLI to backend HTTP calls)
 - JSON file storage (`data.json`)
 
+## 2.1 Frontend Demo
+- Browser UI served from `templates/index.html`
+- Styles in `static/css/style.css`
+- Frontend logic in `static/js/app.js`
+- Demo documentation: `FRONTEND_INSTRUCTIONS.md`
+
 ## 3. Project Structure
 
 ```text

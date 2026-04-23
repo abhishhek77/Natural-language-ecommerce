@@ -25,6 +25,14 @@ function saveState() {
   if (state.user) localStorage.setItem('ss_user', JSON.stringify(state.user));
 }
 
+function ensureDemoUser() {
+  const users = JSON.parse(localStorage.getItem('ss_users') || '[]');
+  if (!users.find(u => u.email === 'demo@smartstore.com')) {
+    users.push({ name: 'Demo User', email: 'demo@smartstore.com', password: 'demo123' });
+    localStorage.setItem('ss_users', JSON.stringify(users));
+  }
+}
+
 // ── API ──
 async function api(path, opts = {}) {
   try {
@@ -72,6 +80,95 @@ function toast(msg, type = '') {
   setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateY(10px)'; el.style.transition = '0.3s'; setTimeout(() => el.remove(), 300); }, 3000);
 }
 
+function go(page) {
+  navigate(page);
+}
+
+function goHome() {
+  navigate('store');
+}
+
+function renderProds() {
+  const searchInput = document.getElementById('search-input');
+  const sortSelect = document.getElementById('sort-select');
+  if (searchInput) state.searchQuery = searchInput.value;
+  if (sortSelect) state.sortBy = sortSelect.value;
+  renderProductGrid();
+}
+
+function setCat(button) {
+  document.querySelectorAll('.cat-tab').forEach(tab => tab.classList.remove('active'));
+  button.classList.add('active');
+  state.categoryFilter = button.dataset.cat || 'all';
+  renderProductGrid();
+}
+
+function selPay(button) {
+  document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
+  button.classList.add('selected');
+}
+
+function profTab(tab, el) {
+  document.querySelectorAll('.pn-item').forEach(item => item.classList.remove('on'));
+  if (el) el.classList.add('on');
+  ['orders', 'settings', 'wishlist', 'addresses'].forEach(name => {
+    const section = document.getElementById('pt-' + name);
+    if (section) section.style.display = name === tab ? 'block' : 'none';
+  });
+}
+
+function demoLogin() {
+  ensureDemoUser();
+  const email = document.getElementById('login-email');
+  const password = document.getElementById('login-password');
+  if (email && password) {
+    email.value = 'demo@smartstore.com';
+    password.value = 'demo123';
+    document.getElementById('login-form')?.requestSubmit();
+  }
+}
+
+function doSignupStep2() {
+  document.getElementById('signup-form')?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+}
+
+function doFpStep1() {
+  document.getElementById('fp-form')?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+}
+
+function doFpStep2() {
+  document.getElementById('fp-form')?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+}
+
+function doFpStep3() {
+  document.getElementById('fp-form')?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+}
+
+function resendOtp() {
+  toast('OTP resent! Please check your email.', 'info');
+}
+
+function checkStrength(input) {
+  const value = input.value || '';
+  const segs = [document.getElementById('sg1'), document.getElementById('sg2'), document.getElementById('sg3')];
+  let score = 0;
+  if (value.length >= 6) score++;
+  if (value.length >= 10) score++;
+  if (/[A-Z]/.test(value) && /\d/.test(value)) score++;
+  segs.forEach((seg, index) => {
+    if (!seg) return;
+    seg.className = 'seg';
+    if (index < score) seg.classList.add(score === 1 ? 'weak' : score === 2 ? 'medium' : 'strong');
+  });
+}
+
+function toggleEye(button) {
+  const input = button.previousElementSibling;
+  if (!input) return;
+  input.type = input.type === 'password' ? 'text' : 'password';
+  button.textContent = input.type === 'password' ? '👁' : '🙈';
+}
+
 // ── AUTH ──
 function initAuth() {
   // Login
@@ -79,11 +176,18 @@ function initAuth() {
     e.preventDefault();
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
-    const btn = e.target.querySelector('.btn-primary');
-    btn.disabled = true; btn.textContent = 'Signing in…';
+    const btn = e.target.querySelector('button[type="submit"]') || e.target.querySelector('button');
+    if (btn) { btn.disabled = true; btn.textContent = 'Signing in…'; }
     await new Promise(r => setTimeout(r, 900)); // simulate
     const users = JSON.parse(localStorage.getItem('ss_users') || '[]');
-    const user = users.find(u => u.email === email && u.password === password);
+    let user = users.find(u => u.email === email && u.password === password);
+    if (!user && email === 'demo@smartstore.com' && password === 'demo123') {
+      user = { name: 'Demo User', email, password };
+      if (!users.find(u => u.email === email)) {
+        users.push(user);
+        localStorage.setItem('ss_users', JSON.stringify(users));
+      }
+    }
     if (user) {
       state.user = { name: user.name, email: user.email };
       saveState();
@@ -91,7 +195,7 @@ function initAuth() {
       navigate('store');
     } else {
       setError('login-email-error', 'Invalid email or password');
-      btn.disabled = false; btn.textContent = 'Sign In';
+      if (btn) { btn.disabled = false; btn.textContent = 'Sign In'; }
     }
   });
 
@@ -526,6 +630,7 @@ function formatPrice(n) {
 
 // ── INIT ──
 function init() {
+  ensureDemoUser();
   // Auto-navigate
   if (state.user) {
     navigate('store');
